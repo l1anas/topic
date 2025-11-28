@@ -598,20 +598,93 @@ namespace тема2
 						string lastName = reader["last_name"].ToString();
 						string email = reader["phone"].ToString();
 
-						string subject = actionType == "invite" ?
-							"Приглашение на работу" : "Отказ по заявке";
+						string subject, body;
 
-						string body = actionType == "invite" ?
-							$"Уважаемый(ая) {firstName} {lastName}, мы рады пригласить Вас на работу!" :
-							$"Уважаемый(ая) {firstName} {lastName}, к сожалению, мы не можем предложить Вам работу на данный момент.";
+						if (actionType == "invite")
+						{
+							subject = "Приглашение на работу в нашу компанию";
+							body = $@"
+<html>
+<body style='font-family: Arial, sans-serif; line-height: 1.6;'>
+    <h2 style='color: #2E8B57;'>Уважаемый(ая) {firstName} {lastName}!</h2>
+    
+    <p>Мы рады сообщить, что Вы успешно прошли отбор и мы хотим пригласить Вас 
+    на позицию в нашу компанию!</p>
+    
+    <p>Ваши результаты тестирования и резюме произвели на нас очень хорошее впечатление.</p>
+    
+    <h3 style='color: #2E8B57;'>Следующие шаги:</h3>
+    <ul>
+        <li>Наш HR-менеджер свяжется с Вами в течение 2 рабочих дней</li>
+        <li>Обсудим детали сотрудничества и ответим на все Ваши вопросы</li>
+        <li>Запланируем собеседование с техническим специалистом</li>
+    </ul>
+    
+    <p>Если у Вас есть срочные вопросы, Вы можете ответить на это письмо.</p>
+    
+    <p>С уважением,<br>
+    <strong>HR-отдел</strong><br>
+    Наша компания</p>
+    
+    <hr style='border: none; border-top: 1px solid #eee;'>
+    <p style='font-size: 12px; color: #666;'>
+        Это письмо сгенерировано автоматически. Пожалуйста, не отвечайте на него.
+    </p>
+</body>
+</html>";
+						}
+						else // reject
+						{
+							subject = "Ответ на вашу заявку";
+							body = $@"
+<html>
+<body style='font-family: Arial, sans-serif; line-height: 1.6;'>
+    <h2 style='color: #D9534F;'>Уважаемый(ая) {firstName} {lastName}!</h2>
+    
+    <p>Благодарим Вас за проявленный интерес к нашей компании и время, 
+    уделенное на прохождение отбора.</p>
+    
+    <p>После тщательного рассмотрения Вашей кандидатуры и результатов тестирования, 
+    мы, к сожалению, не можем предложить Вам позицию в нашей компании на данный момент.</p>
+    
+    <p>Это решение не является оценкой Ваших профессиональных качеств. 
+    Мы сохраним Ваше резюме в нашей базе и свяжемся с Вами, 
+    если появится подходящая возможность в будущем.</p>
+    
+    <p>Желаем Вам успехов в поиске работы и надеемся на возможность 
+    сотрудничества в будущем!</p>
+    
+    <p>С уважением,<br>
+    <strong>HR-отдел</strong><br>
+    Наша компания</p>
+    
+    <hr style='border: none; border-top: 1px solid #eee;'>
+    <p style='font-size: 12px; color: #666;'>
+        Это письмо сгенерировано автоматически. Пожалуйста, не отвечайте на него.
+    </p>
+</body>
+</html>";
+						}
 
-						Console.WriteLine($"Email отправлен на {email}: {subject}");
+						// Отправляем email
+						bool emailSent = EmailService.SendEmail(email, subject, body);
+
+						if (emailSent)
+						{
+							Console.WriteLine($"Email успешно отправлен на {email}: {subject}");
+						}
+						else
+						{
+							MessageBox.Show($"Не удалось отправить email на {email}", "Ошибка отправки",
+								MessageBoxButtons.OK, MessageBoxIcon.Warning);
+						}
 					}
 				}
 			}
 			catch (Exception ex)
 			{
-				Console.WriteLine($"Ошибка отправки email: {ex.Message}");
+				MessageBox.Show($"Ошибка при подготовке email: {ex.Message}", "Ошибка",
+					MessageBoxButtons.OK, MessageBoxIcon.Error);
 			}
 			finally
 			{

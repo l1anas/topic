@@ -198,7 +198,7 @@ namespace тема2
         private void pictureBox1_Click(object sender, EventArgs e)
         {
             this.Hide();
-            MainWindow main = new MainWindow();
+            MainWindow main = new MainWindow(1);
             main.Show();
         }
     }

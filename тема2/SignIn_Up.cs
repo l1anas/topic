@@ -2,33 +2,24 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using тема_1;
-
 
 namespace тема2
 {
 	public partial class SignIn_Up : Form
 	{
-		// Элементы управления для входа
-		private Panel pnlLogin;
-		private TextBox txtLoginUsername;
-		private TextBox txtLoginPassword;
-		private Button btnLogin;
-		private LinkLabel linkToRegister;
+		// Счетчик неудачных попыток входа
+		private Dictionary<string, int> failedLoginAttempts = new Dictionary<string, int>();
+		private Dictionary<string, DateTime> lockedUsers = new Dictionary<string, DateTime>();
 
-		// Элементы управления для регистрации
-		private Panel pnlRegister;
-		private TextBox txtRegFirstName;
-		private TextBox txtRegLastName;
-		private TextBox txtRegUsername;
-		private TextBox txtRegPassword;
-		private TextBox txtRegPhone;
-		private Button btnRegister;
-		private LinkLabel linkToLogin;
+		// Флаг для отслеживания инициализации
+		private bool isInitialized = false;
 
 		public SignIn_Up()
 		{
@@ -36,83 +27,83 @@ namespace тема2
 			InitializeLoginForm();
 			InitializeRegisterForm();
 			ShowLoginForm();
+			isInitialized = true;
 		}
 
 		private void InitializeLoginForm()
 		{
-			// УВЕЛИЧЕННАЯ панель входа
+			// Панель входа
 			pnlLogin = new Panel
 			{
-				Size = new Size(500, 400),  // Увеличено с 350x300
-				Location = new Point(50, 50), // Смещено для центрирования
+				Size = new Size(500, 400),
 				BorderStyle = BorderStyle.FixedSingle,
 				BackColor = Color.White
 			};
 
-			// Заголовок - перемещен выше
+			// Заголовок
 			Label lblLoginTitle = new Label
 			{
 				Text = "Вход в систему психологического тестирования",
 				Font = new Font("Arial", 16, FontStyle.Bold),
-				Location = new Point(50, 40), // Поднят выше
+				Location = new Point(50, 40),
 				Size = new Size(400, 30),
 				TextAlign = ContentAlignment.MiddleCenter
 			};
 
-			// Поле логина - больше отступы
+			// Поле логина
 			Label lblUsername = new Label
 			{
 				Text = "Логин:",
-				Location = new Point(100, 100), // Смещено вправо
+				Location = new Point(100, 100),
 				Size = new Size(100, 25),
 				Font = new Font("Arial", 11)
 			};
 
 			txtLoginUsername = new TextBox
 			{
-				Location = new Point(100, 130), // Смещено вправо
-				Size = new Size(300, 35), // Увеличено
+				Location = new Point(100, 130),
+				Size = new Size(300, 35),
 				Font = new Font("Arial", 11)
 			};
 
-			// Поле пароля - больше отступы
+			// Поле пароля
 			Label lblPassword = new Label
 			{
 				Text = "Пароль:",
-				Location = new Point(100, 180), // Смещено вправо
+				Location = new Point(100, 180),
 				Size = new Size(100, 25),
 				Font = new Font("Arial", 11)
 			};
 
 			txtLoginPassword = new TextBox
 			{
-				Location = new Point(100, 210), // Смещено вправо
-				Size = new Size(300, 35), // Увеличено
+				Location = new Point(100, 210),
+				Size = new Size(300, 35),
 				Font = new Font("Arial", 11),
 				UseSystemPasswordChar = true
 			};
 
-			// Кнопка входа - увеличена
+			// Кнопка входа
 			btnLogin = new Button
 			{
 				Text = "Войти",
-				Location = new Point(100, 270), // Смещено вниз
-				Size = new Size(300, 45), // Увеличена
+				Location = new Point(100, 270),
+				Size = new Size(300, 45),
 				BackColor = Color.SteelBlue,
 				ForeColor = Color.White,
-				Font = new Font("Arial", 12, FontStyle.Bold), // Увеличено
+				Font = new Font("Arial", 12, FontStyle.Bold),
 				Cursor = Cursors.Hand
 			};
 			btnLogin.Click += BtnLogin_Click;
 
-			// Ссылка на регистрацию - смещена вниз
+			// Ссылка на регистрацию
 			linkToRegister = new LinkLabel
 			{
 				Text = "Нет аккаунта? Зарегистрируйтесь",
-				Location = new Point(150, 330), // Смещено вниз
+				Location = new Point(150, 330),
 				Size = new Size(200, 25),
 				TextAlign = ContentAlignment.MiddleCenter,
-				Font = new Font("Arial", 10) // Увеличено
+				Font = new Font("Arial", 10)
 			};
 			linkToRegister.LinkClicked += LinkToRegister_LinkClicked;
 
@@ -127,129 +118,128 @@ namespace тема2
 
 		private void InitializeRegisterForm()
 		{
-			// УВЕЛИЧЕННАЯ панель регистрации
+			// Панель регистрации
 			pnlRegister = new Panel
 			{
-				Size = new Size(500, 600), // Увеличено с 350x450
-				Location = new Point(50, 50), // Смещено для центрирования
+				Size = new Size(500, 600),
 				BorderStyle = BorderStyle.FixedSingle,
 				BackColor = Color.White,
 				Visible = false
 			};
 
-			// Заголовок - перемещен выше
+			// Заголовок
 			Label lblRegTitle = new Label
 			{
 				Text = "Регистрация в системе психологического тестирования",
 				Font = new Font("Arial", 16, FontStyle.Bold),
-				Location = new Point(50, 30), // Поднят выше
+				Location = new Point(50, 30),
 				Size = new Size(400, 30),
 				TextAlign = ContentAlignment.MiddleCenter
 			};
 
-			// Поле имени - больше отступы
+			// Поле имени
 			Label lblFirstName = new Label
 			{
 				Text = "Имя:",
-				Location = new Point(100, 80), // Смещено вправо
+				Location = new Point(100, 80),
 				Size = new Size(100, 25),
 				Font = new Font("Arial", 11)
 			};
 
 			txtRegFirstName = new TextBox
 			{
-				Location = new Point(100, 110), // Смещено вправо
-				Size = new Size(300, 35), // Увеличено
+				Location = new Point(100, 110),
+				Size = new Size(300, 35),
 				Font = new Font("Arial", 11)
 			};
 
-			// Поле фамилии - больше отступы
+			// Поле фамилии
 			Label lblLastName = new Label
 			{
 				Text = "Фамилия:",
-				Location = new Point(100, 160), // Смещено вправо
+				Location = new Point(100, 160),
 				Size = new Size(100, 25),
 				Font = new Font("Arial", 11)
 			};
 
 			txtRegLastName = new TextBox
 			{
-				Location = new Point(100, 190), // Смещено вправо
-				Size = new Size(300, 35), // Увеличено
+				Location = new Point(100, 190),
+				Size = new Size(300, 35),
 				Font = new Font("Arial", 11)
 			};
 
-			// Поле логина - больше отступы
+			// Поле логина
 			Label lblRegUsername = new Label
 			{
 				Text = "Логин:",
-				Location = new Point(100, 240), // Смещено вправо
+				Location = new Point(100, 240),
 				Size = new Size(100, 25),
 				Font = new Font("Arial", 11)
 			};
 
 			txtRegUsername = new TextBox
 			{
-				Location = new Point(100, 270), // Смещено вправо
-				Size = new Size(300, 35), // Увеличено
+				Location = new Point(100, 270),
+				Size = new Size(300, 35),
 				Font = new Font("Arial", 11)
 			};
 
-			// Поле пароля - больше отступы
+			// Поле пароля
 			Label lblRegPassword = new Label
 			{
 				Text = "Пароль:",
-				Location = new Point(100, 320), // Смещено вправо
+				Location = new Point(100, 320),
 				Size = new Size(100, 25),
 				Font = new Font("Arial", 11)
 			};
 
 			txtRegPassword = new TextBox
 			{
-				Location = new Point(100, 350), // Смещено вправо
-				Size = new Size(300, 35), // Увеличено
+				Location = new Point(100, 350),
+				Size = new Size(300, 35),
 				Font = new Font("Arial", 11),
 				UseSystemPasswordChar = true
 			};
 
-			// Поле телефона - больше отступы
-			Label lblPhone = new Label
+			// Поле email
+			Label lblEmail = new Label
 			{
-				Text = "Номер телефона:",
-				Location = new Point(100, 400), // Смещено вправо
-				Size = new Size(150, 25),
+				Text = "Email:",
+				Location = new Point(100, 400),
+				Size = new Size(100, 25),
 				Font = new Font("Arial", 11)
 			};
 
-			txtRegPhone = new TextBox
+			txtRegEmail = new TextBox
 			{
-				Location = new Point(100, 430), // Смещено вправо
-				Size = new Size(300, 35), // Увеличено
+				Location = new Point(100, 430),
+				Size = new Size(300, 35),
 				Font = new Font("Arial", 11),
-				PlaceholderText = "+375XXXXXXXXX"
+				PlaceholderText = "example@mail.com"
 			};
 
-			// Кнопка регистрации - увеличена
+			// Кнопка регистрации
 			btnRegister = new Button
 			{
 				Text = "Зарегистрироваться",
-				Location = new Point(100, 490), // Смещено вниз
-				Size = new Size(300, 45), // Увеличена
+				Location = new Point(100, 490),
+				Size = new Size(300, 45),
 				BackColor = Color.SeaGreen,
 				ForeColor = Color.White,
-				Font = new Font("Arial", 12, FontStyle.Bold), // Увеличено
+				Font = new Font("Arial", 12, FontStyle.Bold),
 				Cursor = Cursors.Hand
 			};
 			btnRegister.Click += BtnRegister_Click;
 
-			// Ссылка на вход - смещена вниз
+			// Ссылка на вход
 			linkToLogin = new LinkLabel
 			{
 				Text = "Уже есть аккаунт? Войдите",
-				Location = new Point(150, 550), // Смещено вниз
+				Location = new Point(150, 550),
 				Size = new Size(200, 25),
 				TextAlign = ContentAlignment.MiddleCenter,
-				Font = new Font("Arial", 10) // Увеличено
+				Font = new Font("Arial", 10)
 			};
 			linkToLogin.LinkClicked += LinkToLogin_LinkClicked;
 
@@ -257,7 +247,7 @@ namespace тема2
 			pnlRegister.Controls.AddRange(new Control[] {
 				lblRegTitle, lblFirstName, txtRegFirstName,
 				lblLastName, txtRegLastName, lblRegUsername, txtRegUsername,
-				lblRegPassword, txtRegPassword, lblPhone, txtRegPhone,
+				lblRegPassword, txtRegPassword, lblEmail, txtRegEmail,
 				btnRegister, linkToLogin
 			});
 
@@ -268,8 +258,12 @@ namespace тема2
 		{
 			pnlLogin.Visible = true;
 			pnlRegister.Visible = false;
-			// УВЕЛИЧЕН размер формы для входа
-			this.Size = new Size(600, 500); // Было 400x370
+
+			// Центрируем панель входа
+			CenterPanel(pnlLogin);
+
+			this.ClientSize = new Size(600, 500);
+			this.MinimumSize = new Size(600, 500);
 			this.Text = "Вход в систему психологического тестирования";
 			CenterToScreen();
 		}
@@ -278,13 +272,41 @@ namespace тема2
 		{
 			pnlLogin.Visible = false;
 			pnlRegister.Visible = true;
-			// УВЕЛИЧЕН размер формы для регистрации
-			this.Size = new Size(600, 700); // Было 400x520
+
+			// Центрируем панель регистрации
+			CenterPanel(pnlRegister);
+
+			this.ClientSize = new Size(600, 700);
+			this.MinimumSize = new Size(600, 700);
 			this.Text = "Регистрация в системе психологического тестирования";
 			CenterToScreen();
 		}
 
-		// Остальной код без изменений...
+		private void CenterPanel(Panel panel)
+		{
+			if (panel != null)
+			{
+				panel.Location = new Point(
+					(this.ClientSize.Width - panel.Width) / 2,
+					(this.ClientSize.Height - panel.Height) / 2
+				);
+			}
+		}
+
+		protected override void OnSizeChanged(EventArgs e)
+		{
+			base.OnSizeChanged(e);
+
+			// Проверяем, что инициализация завершена и панели созданы
+			if (!isInitialized) return;
+
+			// Перецентрируем панели при изменении размера формы
+			if (pnlLogin != null && pnlLogin.Visible)
+				CenterPanel(pnlLogin);
+			else if (pnlRegister != null && pnlRegister.Visible)
+				CenterPanel(pnlRegister);
+		}
+
 		private void LinkToRegister_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
 		{
 			ShowRegisterForm();
@@ -307,7 +329,38 @@ namespace тема2
 				return;
 			}
 
+			// Проверка блокировки пользователя
+			if (IsUserLocked(username))
+			{
+				MessageBox.Show("Ваш аккаунт временно заблокирован из-за слишком большого количества неудачных попыток входа. Попробуйте позже.",
+					"Аккаунт заблокирован", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+				return;
+			}
+
 			CheckLoginPassword(username, password);
+		}
+
+		private bool IsUserLocked(string username)
+		{
+			// Проверяем, заблокирован ли пользователь
+			if (lockedUsers.ContainsKey(username))
+			{
+				DateTime lockTime = lockedUsers[username];
+				if (DateTime.Now < lockTime)
+				{
+					// Пользователь все еще заблокирован
+					TimeSpan remainingTime = lockTime - DateTime.Now;
+					return true;
+				}
+				else
+				{
+					// Время блокировки истекло, разблокируем пользователя
+					lockedUsers.Remove(username);
+					failedLoginAttempts.Remove(username);
+					return false;
+				}
+			}
+			return false;
 		}
 
 		private void CheckLoginPassword(string login, string password)
@@ -320,7 +373,7 @@ namespace тема2
 				database.openConnection();
 
 				MySqlCommand command = new MySqlCommand(
-					"SELECT * FROM users WHERE login = @ent_login AND password = @ent_password",
+					"SELECT * FROM users WHERE login = @ent_login AND password = @ent_password AND is_active = 1",
 					database.getConnection());
 
 				command.Parameters.Add("@ent_login", MySqlDbType.VarChar).Value = login;
@@ -331,21 +384,56 @@ namespace тема2
 
 				if (dataTable.Rows.Count > 0)
 				{
+					// Успешный вход - сбрасываем счетчик неудачных попыток
+					if (failedLoginAttempts.ContainsKey(login))
+					{
+						failedLoginAttempts.Remove(login);
+					}
+					if (lockedUsers.ContainsKey(login))
+					{
+						lockedUsers.Remove(login);
+					}
+
 					DataRow user = dataTable.Rows[0];
 					string firstName = user["first_name"].ToString();
 					string lastName = user["last_name"].ToString();
 
-					MessageBox.Show($"{firstName} {lastName}, Вы успешно авторизовались!",
+					// ВАЖНО: Получаем ID пользователя
+					int userId = Convert.ToInt32(user["id"]); // Добавьте эту строку
+
+					// Получаем роль пользователя из enum
+					string roleString = user["role"].ToString();
+					int userRole = GetRoleNumber(roleString);
+
+					MessageBox.Show($"{firstName} {lastName}, Вы успешно авторизовались!\nРоль: {GetRoleDisplayName(roleString)}",
 						"Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
 					this.Hide();
-					MainWindow main = new MainWindow();
+
+					// Передаем роль И ID пользователя в главное окно
+					MainWindow main = new MainWindow(userRole, userId); // Добавьте userId
 					main.Show();
 				}
 				else
 				{
-					MessageBox.Show($"Неверный логин или пароль",
-						"Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+					// Неудачная попытка входа
+					IncrementFailedAttempts(login);
+
+					int attempts = failedLoginAttempts.ContainsKey(login) ? failedLoginAttempts[login] : 1;
+					int remainingAttempts = 3 - attempts;
+
+					if (remainingAttempts > 0)
+					{
+						MessageBox.Show($"Неверный логин или пароль. Осталось попыток: {remainingAttempts}",
+							"Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+					}
+					else
+					{
+						// Блокируем пользователя на 5 минут
+						lockedUsers[login] = DateTime.Now.AddMinutes(5);
+						MessageBox.Show("Превышено количество попыток входа. Ваш аккаунт заблокирован на 5 минут.",
+							"Аккаунт заблокирован", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+					}
 				}
 			}
 			catch (Exception ex)
@@ -359,20 +447,54 @@ namespace тема2
 			}
 		}
 
+		private int GetRoleNumber(string roleString)
+		{
+			switch (roleString.ToLower())
+			{
+				case "admin": return 2;
+				case "psychologist": return 3;
+				case "user":
+				default: return 1;
+			}
+		}
+
+		private string GetRoleDisplayName(string roleString)
+		{
+			switch (roleString.ToLower())
+			{
+				case "admin": return "Администратор";
+				case "psychologist": return "Психолог";
+				case "user":
+				default: return "Пользователь";
+			}
+		}
+
+		private void IncrementFailedAttempts(string username)
+		{
+			if (failedLoginAttempts.ContainsKey(username))
+			{
+				failedLoginAttempts[username]++;
+			}
+			else
+			{
+				failedLoginAttempts[username] = 1;
+			}
+		}
+
 		private void BtnRegister_Click(object sender, EventArgs e)
 		{
 			string firstName = txtRegFirstName.Text.Trim();
 			string lastName = txtRegLastName.Text.Trim();
 			string username = txtRegUsername.Text.Trim();
 			string password = txtRegPassword.Text;
-			string phone = txtRegPhone.Text.Trim();
+			string email = txtRegEmail.Text.Trim();
 
-			if (!ValidateRegistrationData(firstName, lastName, username, password, phone))
+			if (!ValidateRegistrationData(firstName, lastName, username, password, email))
 				return;
 
 			try
 			{
-				RegisterNewUser(firstName, lastName, username, password, phone);
+				RegisterNewUser(firstName, lastName, username, password, email);
 			}
 			catch (Exception ex)
 			{
@@ -381,10 +503,11 @@ namespace тема2
 			}
 		}
 
-		private bool ValidateRegistrationData(string firstName, string lastName, string username, string password, string phone)
+		private bool ValidateRegistrationData(string firstName, string lastName, string username, string password, string email)
 		{
 			if (string.IsNullOrEmpty(firstName) || string.IsNullOrEmpty(lastName) ||
-				string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
+				string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password) ||
+				string.IsNullOrEmpty(email))
 			{
 				MessageBox.Show("Пожалуйста, заполните все обязательные поля",
 					"Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -398,9 +521,9 @@ namespace тема2
 				return false;
 			}
 
-			if (!string.IsNullOrEmpty(phone) && !IsValidPhoneNumber(phone))
+			if (!IsValidEmail(email))
 			{
-				MessageBox.Show("Введите корректный номер телефона в формате +375XXXXXXXXX",
+				MessageBox.Show("Введите корректный email адрес",
 					"Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 				return false;
 			}
@@ -408,7 +531,7 @@ namespace тема2
 			return true;
 		}
 
-		private void RegisterNewUser(string firstName, string lastName, string username, string password, string phone)
+		private void RegisterNewUser(string firstName, string lastName, string username, string password, string email)
 		{
 			BDConnection database = new BDConnection();
 
@@ -423,15 +546,24 @@ namespace тема2
 					return;
 				}
 
-				string query = @"INSERT INTO users (first_name, last_name, login, password, phone) 
-                              VALUES (@firstName, @lastName, @username, @password, @phone)";
+				if (IsEmailTaken(email, database))
+				{
+					MessageBox.Show("Этот email уже используется. Выберите другой.",
+						"Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+					return;
+				}
+
+				string query = @"INSERT INTO users (first_name, last_name, login, password, phone, role, is_active) 
+                              VALUES (@firstName, @lastName, @username, @password, @email, @role, @isActive)";
 
 				MySqlCommand command = new MySqlCommand(query, database.getConnection());
 				command.Parameters.AddWithValue("@firstName", firstName);
 				command.Parameters.AddWithValue("@lastName", lastName);
 				command.Parameters.AddWithValue("@username", username);
 				command.Parameters.AddWithValue("@password", HashPassword(password));
-				command.Parameters.AddWithValue("@phone", string.IsNullOrEmpty(phone) ? DBNull.Value : phone);
+				command.Parameters.AddWithValue("@email", email);
+				command.Parameters.AddWithValue("@role", "user");
+				command.Parameters.AddWithValue("@isActive", 1);
 
 				int rowsAffected = command.ExecuteNonQuery();
 
@@ -456,18 +588,34 @@ namespace тема2
 			MySqlCommand checkCommand = new MySqlCommand(checkQuery, database.getConnection());
 			checkCommand.Parameters.AddWithValue("@username", username);
 
-			int userCount = Convert.ToInt32(checkCommand.ExecuteScalar());
-			return userCount > 0;
+			var result = checkCommand.ExecuteScalar();
+			return result != null && Convert.ToInt32(result) > 0;
 		}
 
-		private bool IsValidPhoneNumber(string phone)
+		private bool IsEmailTaken(string email, BDConnection database)
 		{
-			string pattern = @"^\+375(25|29|33|44)\d{7}$";
-			return Regex.IsMatch(phone, pattern);
+			string checkQuery = "SELECT COUNT(*) FROM users WHERE phone = @email";
+			MySqlCommand checkCommand = new MySqlCommand(checkQuery, database.getConnection());
+			checkCommand.Parameters.AddWithValue("@email", email);
+
+			var result = checkCommand.ExecuteScalar();
+			return result != null && Convert.ToInt32(result) > 0;
+		}
+
+		private bool IsValidEmail(string email)
+		{
+			if (string.IsNullOrEmpty(email))
+				return false;
+
+			string pattern = @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$";
+			return Regex.IsMatch(email, pattern);
 		}
 
 		private string HashPassword(string password)
 		{
+			if (string.IsNullOrEmpty(password))
+				return string.Empty;
+
 			using (var sha256 = System.Security.Cryptography.SHA256.Create())
 			{
 				var bytes = System.Text.Encoding.UTF8.GetBytes(password);
@@ -482,24 +630,7 @@ namespace тема2
 			txtRegLastName.Text = "";
 			txtRegUsername.Text = "";
 			txtRegPassword.Text = "";
-			txtRegPhone.Text = "";
-		}
-
-		private void InitializeComponent()
-		{
-			this.SuspendLayout();
-			// 
-			// SignIn_Up
-			// 
-			this.BackColor = Color.LightGray;
-			// Начальный размер увеличен
-			this.ClientSize = new Size(600, 500);
-			this.FormBorderStyle = FormBorderStyle.FixedDialog;
-			this.MaximizeBox = false;
-			this.MinimizeBox = false;
-			this.StartPosition = FormStartPosition.CenterScreen;
-			this.Text = "Вход в систему психологического тестирования";
-			this.ResumeLayout(false);
+			txtRegEmail.Text = "";
 		}
 	}
 }

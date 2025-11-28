@@ -4,7 +4,13 @@
     <_LastSelectedProfileId>C:\Users\HP\OneDrive\Documents\БГУИР\пуирчр\тесты новый\тема2\Properties\PublishProfiles\FolderProfile1.pubxml</_LastSelectedProfileId>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Update="AdminRegistrationForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Update="Form1.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="HRForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="MainWindow.cs">

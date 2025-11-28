@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MySqlConnector;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -13,7 +14,8 @@ namespace тема2
 {
     public partial class Topic5Test2 : Form
     {
-        private int n = 0;
+		private int userId;
+		private int n = 0;
         private int points = 0;
         private String[] questions = new string[10] {
                 //"Продолжаете ли Вы работать после окончания рабочего дня?"
@@ -103,9 +105,10 @@ namespace тема2
                 "отзывов о системе вознаграждений",
         };
 		private RoundedPanel[] progressPanels;
-		public Topic5Test2()
+		public Topic5Test2(int userId)
         {
-            InitializeComponent();
+			this.userId = userId;
+			InitializeComponent();
             label3.Hide();
             groupBox1.Hide();
             button2.Hide();
@@ -189,9 +192,55 @@ namespace тема2
                 "не, и вы эффективно  поддерживаете мотивацию  и лояльность\n"+
                 "сотрудников через разнообразные и целенаправленные подходы.";
             }
-            button3.Visible = true;
+			SaveTestResult();
+			button3.Visible = true;
         }
-        private void NextQuestion(int num)
+
+		private void SaveTestResult()
+		{
+			if (userId == 0)
+			{
+				MessageBox.Show("Не удалось сохранить результат: пользователь не идентифицирован", "Информация",
+					MessageBoxButtons.OK, MessageBoxIcon.Information);
+				return;
+			}
+
+			BDConnection database = new BDConnection();
+
+			try
+			{
+				database.openConnection();
+
+				// Сохраняем результат теста
+				string query = @"INSERT INTO test_results (user_id, topic_number, test_number, score, max_score) 
+                       VALUES (@userId, @topicNumber, @testNumber, @score, @maxScore)";
+
+				MySqlCommand command = new MySqlCommand(query, database.getConnection());
+				command.Parameters.AddWithValue("@userId", userId);
+				command.Parameters.AddWithValue("@topicNumber", 5); // Тема 2 - Делегирование полномочий
+				command.Parameters.AddWithValue("@testNumber", 2); // Тест 1 в теме
+				command.Parameters.AddWithValue("@score", points);
+				command.Parameters.AddWithValue("@maxScore", 40); // Максимальный балл для этого теста
+
+				int rowsAffected = command.ExecuteNonQuery();
+
+				if (rowsAffected > 0)
+				{
+					Console.WriteLine("Результат теста успешно сохранен в базу данных");
+				}
+			}
+			catch (Exception ex)
+			{
+				MessageBox.Show($"Ошибка сохранения результата теста: {ex.Message}", "Ошибка",
+					MessageBoxButtons.OK, MessageBoxIcon.Error);
+			}
+			finally
+			{
+				database.closeConnection();
+			}
+		}
+
+		private void NextQuestion(int num)
         {
             if (num < 10)
             {
@@ -237,14 +286,14 @@ namespace тема2
         private void button3_Click(object sender, EventArgs e)
         {
             this.Hide();
-            Topic5Test3 test3 = new Topic5Test3();
+            Topic5Test3 test3 = new Topic5Test3(userId);
             test3.Show();
         }
 
         private void pictureBox1_Click(object sender, EventArgs e)
         {
             this.Hide();
-            MainWindow main = new MainWindow(1);
+            MainWindow main = new MainWindow(userId);
             main.Show();
         }
     }

@@ -69,5 +69,14 @@ namespace тема2.Properties {
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
-    }
+
+		internal static System.Drawing.Bitmap icons
+		{
+			get
+			{
+				object obj = ResourceManager.GetObject("super-mario-icons-5", resourceCulture);
+				return ((System.Drawing.Bitmap)(obj));
+			}
+		}
+	}
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MySqlConnector;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -67,8 +68,10 @@ namespace тема_1
 			"Использование коллективного мнения",
 		};
 		private RoundedPanel[] progressPanels;
-		public Test3()
+		private int userId;
+		public Test3(int userId)
 		{
+			this.userId = userId;
 			InitializeComponent();
 			groupBox1.Hide();
 			button2.Hide();
@@ -154,7 +157,53 @@ namespace тема_1
 				"трудников или участия в тренингах для развития управленческих\n" +
 				"навыков.\n";
 			}
+			SaveTestResult();
 		}
+
+		private void SaveTestResult()
+		{
+			if (userId == 0)
+			{
+				MessageBox.Show("Не удалось сохранить результат: пользователь не идентифицирован", "Информация",
+					MessageBoxButtons.OK, MessageBoxIcon.Information);
+				return;
+			}
+
+			BDConnection database = new BDConnection();
+
+			try
+			{
+				database.openConnection();
+
+				// Сохраняем результат теста
+				string query = @"INSERT INTO test_results (user_id, topic_number, test_number, score, max_score) 
+                               VALUES (@userId, @topicNumber, @testNumber, @score, @maxScore)";
+
+				MySqlCommand command = new MySqlCommand(query, database.getConnection());
+				command.Parameters.AddWithValue("@userId", userId);
+				command.Parameters.AddWithValue("@topicNumber", 1); // Тема 2 - Делегирование полномочий
+				command.Parameters.AddWithValue("@testNumber", 3); // Тест 1 в теме
+				command.Parameters.AddWithValue("@score", points);
+				command.Parameters.AddWithValue("@maxScore", 30); // Максимальный балл для этого теста
+
+				int rowsAffected = command.ExecuteNonQuery();
+
+				if (rowsAffected > 0)
+				{
+					Console.WriteLine("Результат теста успешно сохранен в базу данных");
+				}
+			}
+			catch (Exception ex)
+			{
+				MessageBox.Show($"Ошибка сохранения результата теста: {ex.Message}", "Ошибка",
+					MessageBoxButtons.OK, MessageBoxIcon.Error);
+			}
+			finally
+			{
+				database.closeConnection();
+			}
+		}
+
 		private void NextQuestion(int num)
 		{
 			if (num < 10)
@@ -196,7 +245,6 @@ namespace тема_1
 				NextQuestion(n);
 			}
 		}
-
 
 		private void pictureBox1_Click(object sender, EventArgs e)
 		{

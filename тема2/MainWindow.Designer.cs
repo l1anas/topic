@@ -217,5 +217,6 @@ namespace тема2
         private RoundButton buttTest7;
         private RoundButton buttTest6;
 		private Label label1;
+
 	}
 }

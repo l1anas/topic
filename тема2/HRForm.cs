@@ -145,27 +145,29 @@ namespace тема2
 				database.openConnection();
 
 				string query = @"
-                    SELECT 
-                        u.id,
-                        u.first_name,
-                        u.last_name, 
-                        u.phone as email,
-                        u.total_score,
-                        u.resume_text,
-                        u.status
-                    FROM users u 
-                    WHERE u.role = 'user' 
-                    AND u.status = 'pending'
-                    AND u.is_active = 1";
+            SELECT 
+                u.id,
+                u.first_name,
+                u.last_name, 
+                u.phone as email,
+                COALESCE(SUM(tr.score), 0) as total_score,
+                u.resume_text,
+                u.status
+            FROM users u 
+            LEFT JOIN test_results tr ON u.id = tr.user_id
+            WHERE u.role = 'user' 
+            AND u.status = 'pending'
+            AND u.is_active = 1";
 
 				if (!string.IsNullOrEmpty(searchTerm))
 				{
 					query += @" AND (u.first_name LIKE @search 
-                              OR u.last_name LIKE @search 
-                              OR u.phone LIKE @search)";
+                          OR u.last_name LIKE @search 
+                          OR u.phone LIKE @search)";
 				}
 
-				query += " ORDER BY u.total_score DESC";
+				query += " GROUP BY u.id, u.first_name, u.last_name, u.phone, u.resume_text, u.status";
+				query += " ORDER BY total_score DESC";
 
 				MySqlCommand command = new MySqlCommand(query, database.getConnection());
 

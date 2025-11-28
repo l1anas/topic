@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MySqlConnector;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -14,6 +15,7 @@ namespace тема2
 {
 	public partial class Topic7Test2 : Form
 	{
+		private int userId;
 		private int n = 0;
 		private int points = 0;
 		private String[] questions = new string[10] {
@@ -33,7 +35,7 @@ namespace тема2
 				"Рассмотрение предложений по улучшению работы от членов команды\n"+"может помочь в оптимизации рабочих процессов?"};
 		
 		private RoundedPanel[] progressPanels;
-		public Topic7Test2()
+		public Topic7Test2(int userId)
 		{
 			InitializeComponent();
 			label3.Hide();
@@ -50,6 +52,7 @@ namespace тема2
 			};
 
 			UpdatePanelColors();
+			this.userId = userId;
 		}
 
 		private void UpdatePanelColors()
@@ -102,8 +105,55 @@ namespace тема2
 				label3.Text = $"Ваш результат: {points} баллов\n\n" +
 				"Высокий уровень знаний по созданию эффективной команды";
 			}
+			SaveTestResult();
 			button3.Visible = true;
 		}
+
+		private void SaveTestResult()
+		{
+			if (userId == 0)
+			{
+				MessageBox.Show("Не удалось сохранить результат: пользователь не идентифицирован", "Информация",
+					MessageBoxButtons.OK, MessageBoxIcon.Information);
+				return;
+			}
+
+			BDConnection database = new BDConnection();
+
+			try
+			{
+				database.openConnection();
+
+				// Сохраняем результат теста
+				string query = @"INSERT INTO test_results (user_id, topic_number, test_number, score, max_score) 
+                       VALUES (@userId, @topicNumber, @testNumber, @score, @maxScore)";
+
+				MySqlCommand command = new MySqlCommand(query, database.getConnection());
+				command.Parameters.AddWithValue("@userId", userId);
+				command.Parameters.AddWithValue("@topicNumber", 7); // Тема 2 - Делегирование полномочий
+				command.Parameters.AddWithValue("@testNumber", 2); // Тест 1 в теме
+				command.Parameters.AddWithValue("@score", points);
+				command.Parameters.AddWithValue("@maxScore", 10); // Максимальный балл для этого теста
+
+				int rowsAffected = command.ExecuteNonQuery();
+
+				if (rowsAffected > 0)
+				{
+					Console.WriteLine("Результат теста успешно сохранен в базу данных");
+				}
+			}
+			catch (Exception ex)
+			{
+				MessageBox.Show($"Ошибка сохранения результата теста: {ex.Message}", "Ошибка",
+					MessageBoxButtons.OK, MessageBoxIcon.Error);
+			}
+			finally
+			{
+				database.closeConnection();
+			}
+		}
+
+
 		private void NextQuestion(int num)
 		{
 			if (num < 10)
@@ -141,14 +191,14 @@ namespace тема2
 		private void button3_Click(object sender, EventArgs e)
 		{
 			this.Hide();
-			Topic7Test3 test3 = new Topic7Test3();
+			Topic7Test3 test3 = new Topic7Test3(userId);
 			test3.Show();
 		}
 
 		private void pictureBox1_Click(object sender, EventArgs e)
 		{
 			this.Hide();
-			MainWindow main = new MainWindow(1);
+			MainWindow main = new MainWindow(userId);
 			main.Show();
 		}
 

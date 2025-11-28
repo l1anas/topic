@@ -11,50 +11,15 @@ namespace тема2
 		private int userRole;
 		private int userId;
 
-		public MainWindow(int role, int userId = 0)
+		public MainWindow(int userId)
 		{
 			this.userId = userId;
 			InitializeComponent();
-			userRole = role;
-
-			// Увеличиваем высоту формы чтобы вместить новые кнопки
 			this.Height = 1200;
 
-			if (userRole == 2) // HR
-			{
-				this.Text += " (HR)";
-				ShowHRPanel();
-			}
-			else if (userRole == 3) // Психолог
-			{
-				this.Text += " (Психолог)";
-				ShowPsychologistFeatures();
-			}
-			else // Обычный пользователь
-			{
-				this.Text += " (Пользователь)";
-				ShowUserFeatures();
-			}
-		}
-
-		private void ShowHRPanel()
-		{
-			Button btnHRPanel = new Button
-			{
-				Text = "Панель HR",
-				Location = new Point(20, 20),
-				Size = new Size(120, 40),
-				BackColor = Color.SteelBlue,
-				ForeColor = Color.White,
-				Font = new Font("Arial", 10, FontStyle.Bold)
-			};
-			btnHRPanel.Click += (s, e) =>
-			{
-				HRForm hrForm = new HRForm(userId);
-				hrForm.Show();
-			};
-
-			this.Controls.Add(btnHRPanel);
+			this.Text += " (Пользователь)";
+			ShowUserFeatures();
+			
 		}
 
 		private void ShowUserFeatures()
@@ -90,20 +55,6 @@ namespace тема2
 
 			// Добавляем ссылку "Пользовательское соглашение"
 			AddUserAgreementLink();
-		}
-
-		private void ShowPsychologistFeatures()
-		{
-			Label lblPsychologist = new Label
-			{
-				Text = "Панель психолога",
-				Location = new Point(2, 20),
-				Size = new Size(200, 30),
-				Font = new Font("Arial", 12, FontStyle.Bold),
-				ForeColor = Color.DarkBlue
-			};
-
-			this.Controls.Add(lblPsychologist);
 		}
 
 		private void AddExitButton()

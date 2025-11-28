@@ -290,14 +290,14 @@ namespace тема_1
 		private void button3_Click(object sender, EventArgs e)
 		{
 			this.Hide();
-			Test3 test3 = new Test3(userId); // Передаем ID пользователя
+			Test3 test3 = new Test3(userId); 
 			test3.Show();
 		}
 
 		private void pictureBox1_Click(object sender, EventArgs e)
 		{
 			this.Hide();
-			MainWindow main = new MainWindow(1, userId);
+			MainWindow main = new MainWindow(userId);
 			main.Show();
 		}
 

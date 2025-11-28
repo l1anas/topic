@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
@@ -21,6 +22,43 @@ namespace тема2
 		private Button btnReject;
 		private Button btnViewResume;
 
+		// Кастомная кнопка с закругленными углами
+		public class RoundButton : Button
+		{
+			GraphicsPath GetRoundPath(RectangleF Rect, int radius)
+			{
+				float r2 = radius / 2f;
+				GraphicsPath GraphPath = new GraphicsPath();
+
+				GraphPath.AddArc(Rect.X, Rect.Y, radius, radius, 180, 90);
+				GraphPath.AddLine(Rect.X + r2, Rect.Y, Rect.Width - r2, Rect.Y);
+				GraphPath.AddArc(Rect.X + Rect.Width - radius, Rect.Y, radius, radius, 270, 90);
+				GraphPath.AddLine(Rect.Width, Rect.Y + r2, Rect.Width, Rect.Height - r2);
+				GraphPath.AddArc(Rect.X + Rect.Width - radius,
+									Rect.Y + Rect.Height - radius, radius, radius, 0, 90);
+				GraphPath.AddLine(Rect.Width - r2, Rect.Height, Rect.X + r2, Rect.Height);
+				GraphPath.AddArc(Rect.X, Rect.Y + Rect.Height - radius, radius, radius, 90, 90);
+				GraphPath.AddLine(Rect.X, Rect.Height - r2, Rect.X, Rect.Y + r2);
+
+				GraphPath.CloseFigure();
+				return GraphPath;
+			}
+
+			protected override void OnPaint(PaintEventArgs e)
+			{
+				base.OnPaint(e);
+				RectangleF Rect = new RectangleF(0, 0, this.Width, this.Height);
+				GraphicsPath GraphPath = GetRoundPath(Rect, 50);
+
+				this.Region = new Region(GraphPath);
+				using (Pen pen = new Pen(Color.White, 2.95f))
+				{
+					pen.Alignment = PenAlignment.Inset;
+					e.Graphics.DrawPath(pen, GraphPath);
+				}
+			}
+		}
+
 		public HRForm(int userId)
 		{
 			hrUserId = userId;
@@ -36,82 +74,101 @@ namespace тема2
 			this.Text = "HR Panel - Управление кандидатами";
 			this.Size = new Size(1700, 1220);
 			this.StartPosition = FormStartPosition.CenterScreen;
-			this.BackColor = Color.White;
+			this.BackColor = Color.LemonChiffon;
+
+			// Заголовок
+			Label lblTitle = new Label
+			{
+				Text = "Управление кандидатами",
+				Font = new Font("Times New Roman", 20, FontStyle.Bold),
+				ForeColor = Color.FromArgb(64, 64, 64),
+				Location = new Point(20, 20),
+				Size = new Size(1660, 50),
+				TextAlign = ContentAlignment.MiddleCenter
+			};
 
 			// Панель для поиска (для центрирования)
 			Panel searchPanel = new Panel
 			{
-				Location = new Point(0, 10),
-				Size = new Size(1700, 30),
+				Location = new Point(20, 90),
+				Size = new Size(1660, 50),
 				BackColor = Color.Transparent,
 			};
 
 			// Поле поиска (центрированное)
 			txtSearch = new TextBox
 			{
-				Size = new Size(1300, 20),
-				Font = new Font("Arial", 10),
-				PlaceholderText = "Поиск по имени, фамилии или email..."
+				Size = new Size(1300, 40),
+				Font = new Font("Arial", 12),
+				PlaceholderText = "Поиск по имени, фамилии или email...",
+				BackColor = Color.White,
+				ForeColor = Color.FromArgb(64, 64, 64)
 			};
 
 			// Центрируем поле поиска
-			txtSearch.Location = new Point((searchPanel.Width - txtSearch.Width) / 2, 0);
+			txtSearch.Location = new Point((searchPanel.Width - txtSearch.Width) / 2, 5);
 			txtSearch.TextChanged += TxtSearch_TextChanged;
 
 			// DataGridView для отображения пользователей
 			dgvUsers = new DataGridView
 			{
-				Location = new Point(20, 70),
-				Size = new Size(1660, 1000),
+				Location = new Point(20, 160),
+				Size = new Size(1660, 850),
 				AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None,
 				SelectionMode = DataGridViewSelectionMode.FullRowSelect,
 				ReadOnly = true,
 				AllowUserToAddRows = false,
 				AllowUserToDeleteRows = false,
 				RowHeadersVisible = false,
-				Font = new Font("Arial", 9),
+				Font = new Font("Arial", 10),
 				ScrollBars = ScrollBars.Both,
-				AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells
+				AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells,
+				BackgroundColor = Color.White,
+				BorderStyle = BorderStyle.None,
+				GridColor = Color.LightGray
 			};
 
 			// Панель для центрирования кнопок
 			Panel buttonPanel = new Panel
 			{
-				Location = new Point(20, 1080),
-				Size = new Size(1660, 50),
+				Location = new Point(20, 1020),
+				Size = new Size(1660, 80),
 				BackColor = Color.Transparent
 			};
 
 			// Кнопка просмотра резюме
-			btnViewResume = new Button
+			btnViewResume = new RoundButton
 			{
-				Size = new Size(250, 50),
-				Text = "Просмотреть",
-				BackColor = Color.Gold,
-				ForeColor = Color.Black,
-				Font = new Font("Arial", 12, FontStyle.Bold)
+				Size = new Size(250, 60),
+				Text = "📄 Просмотреть",
+				BackColor = Color.LightSkyBlue, // Нежно-голубой
+				ForeColor = Color.FromArgb(64, 64, 64),
+				Font = new Font("Arial", 12, FontStyle.Bold),
+				Cursor = Cursors.Hand
 			};
 			btnViewResume.Click += BtnViewResume_Click;
 
 			// Кнопка пригласить
-			btnInvite = new Button
+			btnInvite = new RoundButton
 			{
-				Size = new Size(250, 50),
-				Text = "Пригласить",
-				BackColor = Color.SeaGreen,
-				ForeColor = Color.White,
-				Font = new Font("Arial", 12, FontStyle.Bold)
+				Size = new Size(250, 60),
+				Text = "✅ Пригласить",
+				BackColor = Color.PaleGreen, // Нежно-зеленый
+				ForeColor = Color.FromArgb(64, 64, 64),
+				Font = new Font("Arial", 12, FontStyle.Bold),
+				Cursor = Cursors.Hand
 			};
 			btnInvite.Click += BtnInvite_Click;
 
 			// Кнопка отклонить
-			btnReject = new Button
+			btnReject = new RoundButton
 			{
-				Size = new Size(250, 50),
-				Text = "Отклонить",
-				BackColor = Color.IndianRed,
-				ForeColor = Color.White,
-				Font = new Font("Arial", 12, FontStyle.Bold)
+				Size = new Size(250, 60),
+				Text = "❌ Отклонить",
+				BackColor = Color.LightCoral, // Нежно-коралловый
+				ForeColor = Color.FromArgb(64, 64, 64),
+				Font = new Font("Arial", 12, FontStyle.Bold),
+				Cursor = Cursors.Hand
 			};
 			btnReject.Click += BtnReject_Click;
 
@@ -119,9 +176,9 @@ namespace тема2
 			int totalButtonsWidth = btnViewResume.Width + btnInvite.Width + btnReject.Width + 40;
 			int startX = (buttonPanel.Width - totalButtonsWidth) / 2;
 
-			btnViewResume.Location = new Point(startX, 5);
-			btnInvite.Location = new Point(startX + btnViewResume.Width + 20, 5);
-			btnReject.Location = new Point(startX + btnViewResume.Width + btnInvite.Width + 40, 5);
+			btnViewResume.Location = new Point(startX, 10);
+			btnInvite.Location = new Point(startX + btnViewResume.Width + 20, 10);
+			btnReject.Location = new Point(startX + btnViewResume.Width + btnInvite.Width + 40, 10);
 
 			// Добавляем элементы на панели
 			searchPanel.Controls.Add(txtSearch);
@@ -129,7 +186,10 @@ namespace тема2
 
 			// Добавляем элементы на форму
 			this.Controls.AddRange(new Control[] {
-				searchPanel, dgvUsers, buttonPanel
+				lblTitle,
+				searchPanel,
+				dgvUsers,
+				buttonPanel
 			});
 
 			this.ResumeLayout(false);
@@ -202,6 +262,9 @@ namespace тема2
 			{
 				dgvUsers.DataSource = null;
 				dgvUsers.Columns.Add("empty", "Нет данных для отображения");
+				dgvUsers.Columns["empty"].DefaultCellStyle.ForeColor = Color.FromArgb(64, 64, 64);
+				dgvUsers.Columns["empty"].DefaultCellStyle.Font = new Font("Arial", 12);
+				dgvUsers.Columns["empty"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
 				return;
 			}
 
@@ -218,6 +281,22 @@ namespace тема2
 			dgvUsers.Columns["id"].Visible = false;
 			dgvUsers.Columns["status"].Visible = false;
 
+			// Настраиваем стили для заголовков
+			dgvUsers.ColumnHeadersDefaultCellStyle.BackColor = Color.LightSkyBlue;
+			dgvUsers.ColumnHeadersDefaultCellStyle.ForeColor = Color.FromArgb(64, 64, 64);
+			dgvUsers.ColumnHeadersDefaultCellStyle.Font = new Font("Arial", 11, FontStyle.Bold);
+			dgvUsers.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+
+			// Настраиваем стили для строк
+			dgvUsers.DefaultCellStyle.BackColor = Color.White;
+			dgvUsers.DefaultCellStyle.ForeColor = Color.FromArgb(64, 64, 64);
+			dgvUsers.DefaultCellStyle.Font = new Font("Arial", 10);
+			dgvUsers.DefaultCellStyle.SelectionBackColor = Color.LightSkyBlue;
+			dgvUsers.DefaultCellStyle.SelectionForeColor = Color.FromArgb(64, 64, 64);
+
+			// Альтернативный цвет строк
+			dgvUsers.AlternatingRowsDefaultCellStyle.BackColor = Color.LemonChiffon;
+
 			// Настраиваем ширину колонок так, чтобы они занимали все доступное пространство
 			int totalWidth = dgvUsers.Width - 40;
 			int[] columnWidths = CalculateColumnWidths(totalWidth);
@@ -227,6 +306,9 @@ namespace тема2
 			dgvUsers.Columns["email"].Width = columnWidths[2];
 			dgvUsers.Columns["total_score"].Width = columnWidths[3];
 			dgvUsers.Columns["resume_preview"].Width = columnWidths[4];
+
+			// Настраиваем выравнивание
+			dgvUsers.Columns["total_score"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
 
 			// Заполняем данными
 			foreach (DataRow row in usersData.Rows)
@@ -263,8 +345,7 @@ namespace тема2
 			}
 
 			// Настраиваем стили для лучшего отображения
-			dgvUsers.RowTemplate.Height = 35;
-			dgvUsers.AlternatingRowsDefaultCellStyle.BackColor = Color.LightGray;
+			dgvUsers.RowTemplate.Height = 40;
 			dgvUsers.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
 		}
 
@@ -464,7 +545,8 @@ namespace тема2
 				Text = "Резюме кандидата",
 				Size = new Size(700, 600),
 				StartPosition = FormStartPosition.CenterParent,
-				MaximizeBox = true
+				MaximizeBox = true,
+				BackColor = Color.LemonChiffon
 			};
 
 			TextBox txtResume = new TextBox
@@ -476,14 +558,19 @@ namespace тема2
 				ReadOnly = true,
 				Text = resumeText,
 				Font = new Font("Arial", 10),
-				WordWrap = true
+				WordWrap = true,
+				BackColor = Color.White,
+				ForeColor = Color.FromArgb(64, 64, 64)
 			};
 
-			Button btnClose = new Button
+			RoundButton btnClose = new RoundButton
 			{
 				Location = new Point(300, 540),
-				Size = new Size(80, 30),
+				Size = new Size(100, 40),
 				Text = "Закрыть",
+				BackColor = Color.LightSkyBlue,
+				ForeColor = Color.FromArgb(64, 64, 64),
+				Font = new Font("Arial", 10, FontStyle.Bold),
 				DialogResult = DialogResult.OK
 			};
 
@@ -492,7 +579,6 @@ namespace тема2
 			resumeForm.ShowDialog();
 		}
 
-		// Остальные методы без изменений
 		private void BtnInvite_Click(object sender, EventArgs e)
 		{
 			if (dgvUsers.SelectedRows.Count == 0)

@@ -397,26 +397,27 @@ namespace тема2
 					DataRow user = dataTable.Rows[0];
 					string firstName = user["first_name"].ToString();
 					string lastName = user["last_name"].ToString();
+					string role = user["role"].ToString().ToLower();
+					int userId = Convert.ToInt32(user["id"]);
 
-					// ВАЖНО: Получаем ID пользователя
-					int userId = Convert.ToInt32(user["id"]); // Добавьте эту строку
-
-					// Получаем роль пользователя из enum
-					string roleString = user["role"].ToString();
-					int userRole = GetRoleNumber(roleString);
-
-					MessageBox.Show($"{firstName} {lastName}, Вы успешно авторизовались!\nРоль: {GetRoleDisplayName(roleString)}",
+					MessageBox.Show($"{firstName} {lastName}, Вы успешно авторизовались!\nРоль: {GetRoleDisplayName(role)}",
 						"Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
 					this.Hide();
 
-					// Передаем роль И ID пользователя в главное окно
-					MainWindow main = new MainWindow(userRole, userId); // Добавьте userId
-					main.Show();
+					if (role == "hr")
+					{
+						HRForm hrForm = new HRForm(userId);
+						hrForm.Show();
+					}
+					else
+					{
+						MainWindow mainForm = new MainWindow(userId);
+						mainForm.Show();
+					}
 				}
 				else
 				{
-					// Неудачная попытка входа
 					IncrementFailedAttempts(login);
 
 					int attempts = failedLoginAttempts.ContainsKey(login) ? failedLoginAttempts[login] : 1;
@@ -429,8 +430,7 @@ namespace тема2
 					}
 					else
 					{
-						// Блокируем пользователя на 5 минут
-						lockedUsers[login] = DateTime.Now.AddMinutes(5);
+						lockedUsers[login] = DateTime.Now.AddSeconds(30);
 						MessageBox.Show("Превышено количество попыток входа. Ваш аккаунт заблокирован на 5 минут.",
 							"Аккаунт заблокирован", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 					}
@@ -447,23 +447,11 @@ namespace тема2
 			}
 		}
 
-		private int GetRoleNumber(string roleString)
-		{
-			switch (roleString.ToLower())
-			{
-				case "admin": return 2;
-				case "psychologist": return 3;
-				case "user":
-				default: return 1;
-			}
-		}
-
 		private string GetRoleDisplayName(string roleString)
 		{
 			switch (roleString.ToLower())
 			{
-				case "admin": return "Администратор";
-				case "psychologist": return "Психолог";
+				case "hr": return "HR специалист";
 				case "user":
 				default: return "Пользователь";
 			}

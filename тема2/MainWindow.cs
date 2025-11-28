@@ -94,9 +94,12 @@ namespace тема2
 				Size = new Size(995, 35),
 				Font = new Font("Arial", 10),
 				ForeColor = Color.DarkKhaki,
+				LinkColor = Color.DarkKhaki,
 				TextAlign = ContentAlignment.MiddleCenter,
 				Cursor = Cursors.Hand,
+				LinkBehavior = LinkBehavior.NeverUnderline,
 				BackColor = Color.Transparent
+
 			};
 
 			linkUserAgreement.LinkClicked += (s, e) =>
@@ -104,8 +107,8 @@ namespace тема2
 				ShowUserAgreement();
 			};
 
-			linkUserAgreement.MouseEnter += (s, e) => { linkUserAgreement.ForeColor = Color.DarkKhaki; };
-			linkUserAgreement.MouseLeave += (s, e) => { linkUserAgreement.ForeColor = Color.DarkKhaki; };
+			linkUserAgreement.MouseEnter += (s, e) => { linkUserAgreement.ForeColor = Color.Khaki; };
+			linkUserAgreement.MouseLeave += (s, e) => { linkUserAgreement.ForeColor = Color.Khaki; };
 
 			this.Controls.Add(linkUserAgreement);
 			linkUserAgreement.BringToFront();

@@ -18,9 +18,10 @@ namespace тема2
 		// Элементы управления
 		private DataGridView dgvUsers;
 		private TextBox txtSearch;
+		private Button btnViewResume;
 		private Button btnInvite;
 		private Button btnReject;
-		private Button btnViewResume;
+		private Button btnExit; // Новая кнопка выхода
 
 		// Кастомная кнопка с закругленными углами
 		public class RoundButton : Button
@@ -63,6 +64,7 @@ namespace тема2
 		{
 			hrUserId = userId;
 			InitializeComponent();
+			this.ActiveControl = null; // Убираем фокус с поля поиска
 			LoadUsers();
 		}
 
@@ -72,7 +74,7 @@ namespace тема2
 
 			// Настройка формы
 			this.Text = "HR Panel - Управление кандидатами";
-			this.Size = new Size(1700, 1220);
+			this.Size = new Size(1700, 1300); // Увеличили высоту формы для кнопки выхода
 			this.StartPosition = FormStartPosition.CenterScreen;
 			this.BackColor = Color.LemonChiffon;
 
@@ -83,7 +85,7 @@ namespace тема2
 				Font = new Font("Times New Roman", 20, FontStyle.Bold),
 				ForeColor = Color.FromArgb(64, 64, 64),
 				Location = new Point(20, 20),
-				Size = new Size(1660, 50),
+				Size = new Size(1660, 60),
 				TextAlign = ContentAlignment.MiddleCenter
 			};
 
@@ -102,7 +104,8 @@ namespace тема2
 				Font = new Font("Arial", 12),
 				PlaceholderText = "Поиск по имени, фамилии или email...",
 				BackColor = Color.White,
-				ForeColor = Color.FromArgb(64, 64, 64)
+				ForeColor = Color.FromArgb(64, 64, 64),
+				TabStop = false // Отключаем табуляцию на это поле
 			};
 
 			// Центрируем поле поиска
@@ -128,19 +131,27 @@ namespace тема2
 				GridColor = Color.LightGray
 			};
 
-			// Панель для центрирования кнопок
-			Panel buttonPanel = new Panel
+			// Панель для центрирования основных кнопок
+			Panel mainButtonPanel = new Panel
 			{
 				Location = new Point(20, 1020),
 				Size = new Size(1660, 80),
 				BackColor = Color.Transparent
 			};
 
-			// Кнопка просмотра резюме
+			// Панель для кнопки выхода
+			Panel exitButtonPanel = new Panel
+			{
+				Location = new Point(20, 1110),
+				Size = new Size(1660, 80),
+				BackColor = Color.Transparent
+			};
+
+			// Кнопка просмотра резюме (размер как был)
 			btnViewResume = new RoundButton
 			{
-				Size = new Size(250, 60),
-				Text = "📄 Просмотреть",
+				Size = new Size(400, 70),
+				Text = "Просмотреть резюме",
 				BackColor = Color.LightSkyBlue, // Нежно-голубой
 				ForeColor = Color.FromArgb(64, 64, 64),
 				Font = new Font("Arial", 12, FontStyle.Bold),
@@ -148,53 +159,80 @@ namespace тема2
 			};
 			btnViewResume.Click += BtnViewResume_Click;
 
-			// Кнопка пригласить
+			// Кнопка пригласить (размер как был)
 			btnInvite = new RoundButton
 			{
-				Size = new Size(250, 60),
-				Text = "✅ Пригласить",
-				BackColor = Color.PaleGreen, // Нежно-зеленый
+				Size = new Size(250, 70),
+				Text = "Пригласить",
+				BackColor = Color.LightSkyBlue, // Нежно-зеленый
 				ForeColor = Color.FromArgb(64, 64, 64),
 				Font = new Font("Arial", 12, FontStyle.Bold),
 				Cursor = Cursors.Hand
 			};
 			btnInvite.Click += BtnInvite_Click;
 
-			// Кнопка отклонить
+			// Кнопка отклонить (размер как был)
 			btnReject = new RoundButton
 			{
-				Size = new Size(250, 60),
-				Text = "❌ Отклонить",
-				BackColor = Color.LightCoral, // Нежно-коралловый
+				Size = new Size(250, 70),
+				Text = "Отклонить",
+				BackColor = Color.LightSkyBlue, // Нежно-коралловый
 				ForeColor = Color.FromArgb(64, 64, 64),
 				Font = new Font("Arial", 12, FontStyle.Bold),
 				Cursor = Cursors.Hand
 			};
 			btnReject.Click += BtnReject_Click;
 
-			// Центрируем кнопки на панели
-			int totalButtonsWidth = btnViewResume.Width + btnInvite.Width + btnReject.Width + 40;
-			int startX = (buttonPanel.Width - totalButtonsWidth) / 2;
+			// Кнопка выхода (отдельно под основными кнопками)
+			btnExit = new RoundButton
+			{
+				Size = new Size(200, 70), // Чуть меньше основных кнопок
+				Text = "Выйти",
+				BackColor = Color.LightCoral,
+				ForeColor = Color.FromArgb(64, 64, 64),
+				Font = new Font("Arial", 12, FontStyle.Bold),
+				Cursor = Cursors.Hand
+			};
+			btnExit.Click += BtnExit_Click;
 
-			btnViewResume.Location = new Point(startX, 10);
-			btnInvite.Location = new Point(startX + btnViewResume.Width + 20, 10);
-			btnReject.Location = new Point(startX + btnViewResume.Width + btnInvite.Width + 40, 10);
+			// Выравниваем основные кнопки на верхней панели
+			int totalMainButtonsWidth = btnViewResume.Width + btnInvite.Width + btnReject.Width + 40;
+			int startXMain = (mainButtonPanel.Width - totalMainButtonsWidth) / 2;
+
+			btnViewResume.Location = new Point(startXMain, 10);
+			btnInvite.Location = new Point(startXMain + btnViewResume.Width + 20, 10);
+			btnReject.Location = new Point(startXMain + btnViewResume.Width + btnInvite.Width + 40, 10);
+
+			// Центрируем кнопку выхода на нижней панели
+			btnExit.Location = new Point((exitButtonPanel.Width - btnExit.Width) / 2, 10);
 
 			// Добавляем элементы на панели
 			searchPanel.Controls.Add(txtSearch);
-			buttonPanel.Controls.AddRange(new Control[] { btnViewResume, btnInvite, btnReject });
+			mainButtonPanel.Controls.AddRange(new Control[] { btnViewResume, btnInvite, btnReject });
+			exitButtonPanel.Controls.Add(btnExit);
 
 			// Добавляем элементы на форму
 			this.Controls.AddRange(new Control[] {
 				lblTitle,
 				searchPanel,
 				dgvUsers,
-				buttonPanel
+				mainButtonPanel,
+				exitButtonPanel
 			});
 
 			this.ResumeLayout(false);
 		}
 
+		private void BtnExit_Click(object sender, EventArgs e)
+		{
+			var result = MessageBox.Show("Вы уверены, что хотите выйти?", "Подтверждение выхода",
+				MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+			if (result == DialogResult.Yes)
+			{
+				Application.Exit(); // или this.Close() если хотите только закрыть эту форму
+			}
+		}
 		private void LoadUsers(string searchTerm = "")
 		{
 			usersData = new DataTable();

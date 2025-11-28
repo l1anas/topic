@@ -3,12 +3,12 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using тема_1;
 
 namespace тема2
 {
@@ -18,16 +18,41 @@ namespace тема2
 		private Dictionary<string, int> failedLoginAttempts = new Dictionary<string, int>();
 		private Dictionary<string, DateTime> lockedUsers = new Dictionary<string, DateTime>();
 
-		// Флаг для отслеживания инициализации
-		private bool isInitialized = false;
+		// Константы для размеров и отступов
+		private const int FORM_WIDTH = 650;
+		private const int FORM_HEIGHT = 900;
+		private const int PANEL_WIDTH = 500;
+		private const int LOGIN_PANEL_HEIGHT = 450;
+		private const int REGISTER_PANEL_HEIGHT = 700;
+		private const int MARGIN = 30;
+		private const int ELEMENT_SPACING = 20;
+		private const int LABEL_HEIGHT = 25;
+		private const int TEXTBOX_HEIGHT = 35;
+		private const int BUTTON_HEIGHT = 45;
+
 
 		public SignIn_Up()
 		{
 			InitializeComponent();
+			InitializeForm();
 			InitializeLoginForm();
 			InitializeRegisterForm();
 			ShowLoginForm();
-			isInitialized = true;
+		}
+
+		private void InitializeForm()
+		{
+			// Настройка основной формы
+			this.Size = new Size(FORM_WIDTH, FORM_HEIGHT);
+			this.MinimumSize = new Size(FORM_WIDTH, FORM_HEIGHT);
+			this.MaximumSize = new Size(FORM_WIDTH, FORM_HEIGHT);
+			this.StartPosition = FormStartPosition.CenterScreen;
+			this.BackColor = Color.LemonChiffon;
+			this.Text = "Система психологического тестирования";
+			this.Padding = new Padding(0);
+			this.FormBorderStyle = FormBorderStyle.FixedDialog;
+			this.MaximizeBox = false;
+			this.MinimizeBox = false;
 		}
 
 		private void InitializeLoginForm()
@@ -35,79 +60,99 @@ namespace тема2
 			// Панель входа
 			pnlLogin = new Panel
 			{
-				Size = new Size(500, 400),
+				Size = new Size(PANEL_WIDTH, LOGIN_PANEL_HEIGHT),
+				BackColor = Color.White,
 				BorderStyle = BorderStyle.FixedSingle,
-				BackColor = Color.White
+				Location = new Point(((FORM_WIDTH - PANEL_WIDTH) / 2)-10, MARGIN)
 			};
+
+			int currentY = MARGIN;
+			int contentWidth = PANEL_WIDTH - (2 * MARGIN);
 
 			// Заголовок
 			Label lblLoginTitle = new Label
 			{
-				Text = "Вход в систему психологического тестирования",
-				Font = new Font("Arial", 16, FontStyle.Bold),
-				Location = new Point(50, 40),
-				Size = new Size(400, 30),
+				Text = "Вход",
+				Font = new Font("Times New Roman", 16, FontStyle.Bold),
+				ForeColor = Color.LightSkyBlue,
+				Location = new Point(MARGIN, currentY),
+				Size = new Size(contentWidth, 43),
 				TextAlign = ContentAlignment.MiddleCenter
 			};
+			currentY += lblLoginTitle.Height + ELEMENT_SPACING * 2;
 
-			// Поле логина
+			// Логин
 			Label lblUsername = new Label
 			{
 				Text = "Логин:",
-				Location = new Point(100, 100),
-				Size = new Size(100, 25),
-				Font = new Font("Arial", 11)
+				Location = new Point(MARGIN, currentY-7),
+				Size = new Size(contentWidth, LABEL_HEIGHT+5),
+				Font = new Font("Times New Roman", 10, FontStyle.Bold),
+				ForeColor = Color.DimGray
 			};
+			currentY += LABEL_HEIGHT + 5;
 
 			txtLoginUsername = new TextBox
 			{
-				Location = new Point(100, 130),
-				Size = new Size(300, 35),
-				Font = new Font("Arial", 11)
+				Location = new Point(MARGIN, currentY),
+				Size = new Size(contentWidth, TEXTBOX_HEIGHT),
+				Font = new Font("Times New Roman", 10),
+				BackColor = Color.WhiteSmoke,
+				BorderStyle = BorderStyle.FixedSingle
 			};
+			currentY += TEXTBOX_HEIGHT + ELEMENT_SPACING;
 
-			// Поле пароля
+			// Пароль
 			Label lblPassword = new Label
 			{
 				Text = "Пароль:",
-				Location = new Point(100, 180),
-				Size = new Size(100, 25),
-				Font = new Font("Arial", 11)
+				Location = new Point(MARGIN, currentY-7),
+				Size = new Size(contentWidth, LABEL_HEIGHT+5),
+				Font = new Font("Times New Roman", 10, FontStyle.Bold),
+				ForeColor = Color.DimGray
 			};
+			currentY += LABEL_HEIGHT + 5;
 
 			txtLoginPassword = new TextBox
 			{
-				Location = new Point(100, 210),
-				Size = new Size(300, 35),
-				Font = new Font("Arial", 11),
-				UseSystemPasswordChar = true
+				Location = new Point(MARGIN, currentY),
+				Size = new Size(contentWidth, TEXTBOX_HEIGHT),
+				Font = new Font("Times New Roman", 10),
+				UseSystemPasswordChar = true,
+				BackColor = Color.WhiteSmoke,
+				BorderStyle = BorderStyle.FixedSingle
 			};
+			currentY += TEXTBOX_HEIGHT + ELEMENT_SPACING * 2;
 
 			// Кнопка входа
 			btnLogin = new Button
 			{
 				Text = "Войти",
-				Location = new Point(100, 270),
-				Size = new Size(300, 45),
-				BackColor = Color.SteelBlue,
+				Location = new Point(MARGIN, currentY),
+				Size = new Size(contentWidth, BUTTON_HEIGHT),
+				BackColor = Color.LightSkyBlue,
 				ForeColor = Color.White,
-				Font = new Font("Arial", 12, FontStyle.Bold),
+				Font = new Font("Times New Roman", 11, FontStyle.Bold),
+				FlatStyle = FlatStyle.Flat,
 				Cursor = Cursors.Hand
 			};
+			btnLogin.FlatAppearance.BorderSize = 0;
 			btnLogin.Click += BtnLogin_Click;
+			currentY += BUTTON_HEIGHT + ELEMENT_SPACING * 2;
 
 			// Ссылка на регистрацию
 			linkToRegister = new LinkLabel
 			{
-				Text = "Нет аккаунта? Зарегистрируйтесь",
-				Location = new Point(150, 330),
-				Size = new Size(200, 25),
+				Text = "Нет аккаунта? Зарегистрироваться",
+				Location = new Point(MARGIN, currentY),
+				Size = new Size(contentWidth, 25),
 				TextAlign = ContentAlignment.MiddleCenter,
-				Font = new Font("Arial", 10)
+				Font = new Font("Times New Roman", 9),
+				LinkColor = Color.LightSkyBlue
 			};
 			linkToRegister.LinkClicked += LinkToRegister_LinkClicked;
 
-			// Добавляем элементы на панель входа
+			// Добавление элементов на панель
 			pnlLogin.Controls.AddRange(new Control[] {
 				lblLoginTitle, lblUsername, txtLoginUsername,
 				lblPassword, txtLoginPassword, btnLogin, linkToRegister
@@ -121,129 +166,164 @@ namespace тема2
 			// Панель регистрации
 			pnlRegister = new Panel
 			{
-				Size = new Size(500, 600),
-				BorderStyle = BorderStyle.FixedSingle,
+				Size = new Size(PANEL_WIDTH, REGISTER_PANEL_HEIGHT),
 				BackColor = Color.White,
-				Visible = false
+				BorderStyle = BorderStyle.FixedSingle,
+				Location = new Point(((FORM_WIDTH - PANEL_WIDTH) / 2)-10, MARGIN),
+				Visible = false,
+				AutoScroll = true
 			};
+
+			int currentY = MARGIN;
+			int contentWidth = PANEL_WIDTH - (2 * MARGIN);
 
 			// Заголовок
 			Label lblRegTitle = new Label
 			{
-				Text = "Регистрация в системе психологического тестирования",
+				Text = "Регистрация",
 				Font = new Font("Arial", 16, FontStyle.Bold),
-				Location = new Point(50, 30),
-				Size = new Size(400, 30),
+				ForeColor = Color.LightSkyBlue,
+				Location = new Point(MARGIN, currentY),
+				Size = new Size(contentWidth, 43),
 				TextAlign = ContentAlignment.MiddleCenter
 			};
+			currentY += lblRegTitle.Height + ELEMENT_SPACING * 2;
 
-			// Поле имени
+			// Имя
 			Label lblFirstName = new Label
 			{
 				Text = "Имя:",
-				Location = new Point(100, 80),
-				Size = new Size(100, 25),
-				Font = new Font("Arial", 11)
+				Location = new Point(MARGIN, currentY-7),
+				Size = new Size(contentWidth, LABEL_HEIGHT+5),
+				Font = new Font("Arial", 10, FontStyle.Bold),
+				ForeColor = Color.DimGray
 			};
+			currentY += LABEL_HEIGHT + 5;
 
 			txtRegFirstName = new TextBox
 			{
-				Location = new Point(100, 110),
-				Size = new Size(300, 35),
-				Font = new Font("Arial", 11)
+				Location = new Point(MARGIN, currentY),
+				Size = new Size(contentWidth, TEXTBOX_HEIGHT),
+				Font = new Font("Arial", 10),
+				BackColor = Color.WhiteSmoke,
+				BorderStyle = BorderStyle.FixedSingle
 			};
+			currentY += TEXTBOX_HEIGHT + ELEMENT_SPACING;
 
-			// Поле фамилии
+			// Фамилия
 			Label lblLastName = new Label
 			{
 				Text = "Фамилия:",
-				Location = new Point(100, 160),
-				Size = new Size(100, 25),
-				Font = new Font("Arial", 11)
+				Location = new Point(MARGIN, currentY-7),
+				Size = new Size(contentWidth, LABEL_HEIGHT+5),
+				Font = new Font("Arial", 10, FontStyle.Bold),
+				ForeColor = Color.DimGray
 			};
+			currentY += LABEL_HEIGHT + 5;
 
 			txtRegLastName = new TextBox
 			{
-				Location = new Point(100, 190),
-				Size = new Size(300, 35),
-				Font = new Font("Arial", 11)
+				Location = new Point(MARGIN, currentY),
+				Size = new Size(contentWidth, TEXTBOX_HEIGHT),
+				Font = new Font("Arial", 10),
+				BackColor = Color.WhiteSmoke,
+				BorderStyle = BorderStyle.FixedSingle
 			};
+			currentY += TEXTBOX_HEIGHT + ELEMENT_SPACING;
 
-			// Поле логина
+			// Логин
 			Label lblRegUsername = new Label
 			{
 				Text = "Логин:",
-				Location = new Point(100, 240),
-				Size = new Size(100, 25),
-				Font = new Font("Arial", 11)
+				Location = new Point(MARGIN, currentY - 7),
+				Size = new Size(contentWidth, LABEL_HEIGHT + 5),
+				Font = new Font("Arial", 10, FontStyle.Bold),
+				ForeColor = Color.DimGray
 			};
+			currentY += LABEL_HEIGHT + 5;
 
 			txtRegUsername = new TextBox
 			{
-				Location = new Point(100, 270),
-				Size = new Size(300, 35),
-				Font = new Font("Arial", 11)
+				Location = new Point(MARGIN, currentY),
+				Size = new Size(contentWidth, TEXTBOX_HEIGHT),
+				Font = new Font("Arial", 10),
+				BackColor = Color.WhiteSmoke,
+				BorderStyle = BorderStyle.FixedSingle
 			};
+			currentY += TEXTBOX_HEIGHT + ELEMENT_SPACING;
 
-			// Поле пароля
+			// Пароль
 			Label lblRegPassword = new Label
 			{
 				Text = "Пароль:",
-				Location = new Point(100, 320),
-				Size = new Size(100, 25),
-				Font = new Font("Arial", 11)
+				Location = new Point(MARGIN, currentY-7),
+				Size = new Size(contentWidth, LABEL_HEIGHT+5),
+				Font = new Font("Arial", 10, FontStyle.Bold),
+				ForeColor = Color.DimGray
 			};
+			currentY += LABEL_HEIGHT + 5;
 
 			txtRegPassword = new TextBox
 			{
-				Location = new Point(100, 350),
-				Size = new Size(300, 35),
-				Font = new Font("Arial", 11),
-				UseSystemPasswordChar = true
+				Location = new Point(MARGIN, currentY),
+				Size = new Size(contentWidth, TEXTBOX_HEIGHT),
+				Font = new Font("Arial", 10),
+				UseSystemPasswordChar = true,
+				BackColor = Color.WhiteSmoke,
+				BorderStyle = BorderStyle.FixedSingle
 			};
+			currentY += TEXTBOX_HEIGHT + ELEMENT_SPACING;
 
-			// Поле email
+			// Email
 			Label lblEmail = new Label
 			{
 				Text = "Email:",
-				Location = new Point(100, 400),
-				Size = new Size(100, 25),
-				Font = new Font("Arial", 11)
+				Location = new Point(MARGIN, currentY-7),
+				Size = new Size(contentWidth, LABEL_HEIGHT+5),
+				Font = new Font("Arial", 10, FontStyle.Bold),
+				ForeColor = Color.DimGray
 			};
+			currentY += LABEL_HEIGHT + 5;
 
 			txtRegEmail = new TextBox
 			{
-				Location = new Point(100, 430),
-				Size = new Size(300, 35),
-				Font = new Font("Arial", 11),
-				PlaceholderText = "example@mail.com"
+				Location = new Point(MARGIN, currentY),
+				Size = new Size(contentWidth, TEXTBOX_HEIGHT),
+				Font = new Font("Arial", 10),
+				BackColor = Color.WhiteSmoke,
+				BorderStyle = BorderStyle.FixedSingle
 			};
+			currentY += TEXTBOX_HEIGHT + ELEMENT_SPACING * 2;
 
 			// Кнопка регистрации
 			btnRegister = new Button
 			{
 				Text = "Зарегистрироваться",
-				Location = new Point(100, 490),
-				Size = new Size(300, 45),
-				BackColor = Color.SeaGreen,
+				Location = new Point(MARGIN, currentY),
+				Size = new Size(contentWidth, BUTTON_HEIGHT),
+				BackColor = Color.LightSkyBlue,
 				ForeColor = Color.White,
-				Font = new Font("Arial", 12, FontStyle.Bold),
+				Font = new Font("Arial", 11, FontStyle.Bold),
+				FlatStyle = FlatStyle.Flat,
 				Cursor = Cursors.Hand
 			};
+			btnRegister.FlatAppearance.BorderSize = 0;
 			btnRegister.Click += BtnRegister_Click;
+			currentY += BUTTON_HEIGHT + ELEMENT_SPACING * 2;
 
 			// Ссылка на вход
 			linkToLogin = new LinkLabel
 			{
-				Text = "Уже есть аккаунт? Войдите",
-				Location = new Point(150, 550),
-				Size = new Size(200, 25),
+				Text = "Уже есть аккаунт? Войти",
+				Location = new Point(MARGIN, currentY),
+				Size = new Size(contentWidth, 25),
 				TextAlign = ContentAlignment.MiddleCenter,
-				Font = new Font("Arial", 10)
+				Font = new Font("Arial", 9),
+				LinkColor = Color.LightSkyBlue,
 			};
 			linkToLogin.LinkClicked += LinkToLogin_LinkClicked;
 
-			// Добавляем элементы на панель регистрации
+			// Добавление элементов на панель
 			pnlRegister.Controls.AddRange(new Control[] {
 				lblRegTitle, lblFirstName, txtRegFirstName,
 				lblLastName, txtRegLastName, lblRegUsername, txtRegUsername,
@@ -258,53 +338,27 @@ namespace тема2
 		{
 			pnlLogin.Visible = true;
 			pnlRegister.Visible = false;
-
-			// Центрируем панель входа
-			CenterPanel(pnlLogin);
-
-			this.ClientSize = new Size(600, 500);
-			this.MinimumSize = new Size(600, 500);
-			this.Text = "Вход в систему психологического тестирования";
-			CenterToScreen();
+			this.Text = "Вход в систему";
+			CenterPanelVertically(pnlLogin);
 		}
 
 		private void ShowRegisterForm()
 		{
 			pnlLogin.Visible = false;
 			pnlRegister.Visible = true;
-
-			// Центрируем панель регистрации
-			CenterPanel(pnlRegister);
-
-			this.ClientSize = new Size(600, 700);
-			this.MinimumSize = new Size(600, 700);
-			this.Text = "Регистрация в системе психологического тестирования";
-			CenterToScreen();
+			this.Text = "Регистрация";
+			CenterPanelVertically(pnlRegister);
 		}
 
-		private void CenterPanel(Panel panel)
+		private void CenterPanelVertically(Panel panel)
 		{
 			if (panel != null)
 			{
 				panel.Location = new Point(
-					(this.ClientSize.Width - panel.Width) / 2,
+					panel.Location.X,
 					(this.ClientSize.Height - panel.Height) / 2
 				);
 			}
-		}
-
-		protected override void OnSizeChanged(EventArgs e)
-		{
-			base.OnSizeChanged(e);
-
-			// Проверяем, что инициализация завершена и панели созданы
-			if (!isInitialized) return;
-
-			// Перецентрируем панели при изменении размера формы
-			if (pnlLogin != null && pnlLogin.Visible)
-				CenterPanel(pnlLogin);
-			else if (pnlRegister != null && pnlRegister.Visible)
-				CenterPanel(pnlRegister);
 		}
 
 		private void LinkToRegister_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
@@ -329,10 +383,9 @@ namespace тема2
 				return;
 			}
 
-			// Проверка блокировки пользователя
 			if (IsUserLocked(username))
 			{
-				MessageBox.Show("Ваш аккаунт временно заблокирован из-за слишком большого количества неудачных попыток входа. Попробуйте позже.",
+				MessageBox.Show("Ваш аккаунт временно заблокирован. Попробуйте позже.",
 					"Аккаунт заблокирован", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 				return;
 			}
@@ -342,19 +395,15 @@ namespace тема2
 
 		private bool IsUserLocked(string username)
 		{
-			// Проверяем, заблокирован ли пользователь
 			if (lockedUsers.ContainsKey(username))
 			{
 				DateTime lockTime = lockedUsers[username];
 				if (DateTime.Now < lockTime)
 				{
-					// Пользователь все еще заблокирован
-					TimeSpan remainingTime = lockTime - DateTime.Now;
 					return true;
 				}
 				else
 				{
-					// Время блокировки истекло, разблокируем пользователя
 					lockedUsers.Remove(username);
 					failedLoginAttempts.Remove(username);
 					return false;
@@ -384,7 +433,7 @@ namespace тема2
 
 				if (dataTable.Rows.Count > 0)
 				{
-					// Успешный вход - сбрасываем счетчик неудачных попыток
+					// Успешный вход
 					if (failedLoginAttempts.ContainsKey(login))
 					{
 						failedLoginAttempts.Remove(login);
@@ -430,7 +479,7 @@ namespace тема2
 					}
 					else
 					{
-						lockedUsers[login] = DateTime.Now.AddSeconds(30);
+						lockedUsers[login] = DateTime.Now.AddMinutes(5);
 						MessageBox.Show("Превышено количество попыток входа. Ваш аккаунт заблокирован на 5 минут.",
 							"Аккаунт заблокирован", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 					}

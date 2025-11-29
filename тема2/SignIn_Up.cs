@@ -23,13 +23,16 @@ namespace тема2
 		private const int FORM_HEIGHT = 900;
 		private const int PANEL_WIDTH = 500;
 		private const int LOGIN_PANEL_HEIGHT = 450;
-		private const int REGISTER_PANEL_HEIGHT = 700;
+		private const int REGISTER_PANEL_HEIGHT = 750;
 		private const int MARGIN = 30;
 		private const int ELEMENT_SPACING = 20;
 		private const int LABEL_HEIGHT = 25;
 		private const int TEXTBOX_HEIGHT = 35;
 		private const int BUTTON_HEIGHT = 45;
 
+		// Добавляем переменную для чекбокса
+		private CheckBox chkAgreement;
+		private LinkLabel linkUserAgreement; // Ссылка на соглашение
 
 		public SignIn_Up()
 		{
@@ -63,7 +66,7 @@ namespace тема2
 				Size = new Size(PANEL_WIDTH, LOGIN_PANEL_HEIGHT),
 				BackColor = Color.White,
 				BorderStyle = BorderStyle.FixedSingle,
-				Location = new Point(((FORM_WIDTH - PANEL_WIDTH) / 2)-10, MARGIN)
+				Location = new Point(((FORM_WIDTH - PANEL_WIDTH) / 2) - 10, MARGIN)
 			};
 
 			int currentY = MARGIN;
@@ -85,8 +88,8 @@ namespace тема2
 			Label lblUsername = new Label
 			{
 				Text = "Логин:",
-				Location = new Point(MARGIN, currentY-7),
-				Size = new Size(contentWidth, LABEL_HEIGHT+5),
+				Location = new Point(MARGIN, currentY - 7),
+				Size = new Size(contentWidth, LABEL_HEIGHT + 5),
 				Font = new Font("Times New Roman", 10, FontStyle.Bold),
 				ForeColor = Color.DimGray
 			};
@@ -106,8 +109,8 @@ namespace тема2
 			Label lblPassword = new Label
 			{
 				Text = "Пароль:",
-				Location = new Point(MARGIN, currentY-7),
-				Size = new Size(contentWidth, LABEL_HEIGHT+5),
+				Location = new Point(MARGIN, currentY - 7),
+				Size = new Size(contentWidth, LABEL_HEIGHT + 5),
 				Font = new Font("Times New Roman", 10, FontStyle.Bold),
 				ForeColor = Color.DimGray
 			};
@@ -169,7 +172,7 @@ namespace тема2
 				Size = new Size(PANEL_WIDTH, REGISTER_PANEL_HEIGHT),
 				BackColor = Color.White,
 				BorderStyle = BorderStyle.FixedSingle,
-				Location = new Point(((FORM_WIDTH - PANEL_WIDTH) / 2)-10, MARGIN),
+				Location = new Point(((FORM_WIDTH - PANEL_WIDTH) / 2) - 10, MARGIN),
 				Visible = false,
 				AutoScroll = true
 			};
@@ -193,8 +196,8 @@ namespace тема2
 			Label lblFirstName = new Label
 			{
 				Text = "Имя:",
-				Location = new Point(MARGIN, currentY-7),
-				Size = new Size(contentWidth, LABEL_HEIGHT+5),
+				Location = new Point(MARGIN, currentY - 7),
+				Size = new Size(contentWidth, LABEL_HEIGHT + 5),
 				Font = new Font("Arial", 10, FontStyle.Bold),
 				ForeColor = Color.DimGray
 			};
@@ -214,8 +217,8 @@ namespace тема2
 			Label lblLastName = new Label
 			{
 				Text = "Фамилия:",
-				Location = new Point(MARGIN, currentY-7),
-				Size = new Size(contentWidth, LABEL_HEIGHT+5),
+				Location = new Point(MARGIN, currentY - 7),
+				Size = new Size(contentWidth, LABEL_HEIGHT + 5),
 				Font = new Font("Arial", 10, FontStyle.Bold),
 				ForeColor = Color.DimGray
 			};
@@ -256,8 +259,8 @@ namespace тема2
 			Label lblRegPassword = new Label
 			{
 				Text = "Пароль:",
-				Location = new Point(MARGIN, currentY-7),
-				Size = new Size(contentWidth, LABEL_HEIGHT+5),
+				Location = new Point(MARGIN, currentY - 7),
+				Size = new Size(contentWidth, LABEL_HEIGHT + 5),
 				Font = new Font("Arial", 10, FontStyle.Bold),
 				ForeColor = Color.DimGray
 			};
@@ -278,8 +281,8 @@ namespace тема2
 			Label lblEmail = new Label
 			{
 				Text = "Email:",
-				Location = new Point(MARGIN, currentY-7),
-				Size = new Size(contentWidth, LABEL_HEIGHT+5),
+				Location = new Point(MARGIN, currentY - 7),
+				Size = new Size(contentWidth, LABEL_HEIGHT + 5),
 				Font = new Font("Arial", 10, FontStyle.Bold),
 				ForeColor = Color.DimGray
 			};
@@ -293,7 +296,33 @@ namespace тема2
 				BackColor = Color.WhiteSmoke,
 				BorderStyle = BorderStyle.FixedSingle
 			};
-			currentY += TEXTBOX_HEIGHT + ELEMENT_SPACING * 2;
+			currentY += TEXTBOX_HEIGHT + ELEMENT_SPACING;
+
+			// Чекбокс пользовательского соглашения
+			chkAgreement = new CheckBox
+			{
+				Text = "Я принимаю пользовательское соглашение и согласен на обработку персональных данных",
+				Location = new Point(MARGIN, currentY),
+				Size = new Size(contentWidth, 40),
+				Font = new Font("Arial", 6),
+				ForeColor = Color.DimGray,
+				AutoSize = false,
+				TextAlign = ContentAlignment.TopLeft
+			};
+			currentY += chkAgreement.Height + 5;
+
+			// Ссылка на просмотр пользовательского соглашения
+			linkUserAgreement = new LinkLabel
+			{
+				Text = "Ознакомиться с пользовательским соглашением",
+				Location = new Point(MARGIN, currentY),
+				Size = new Size(contentWidth, 20),
+				Font = new Font("Arial", 8, FontStyle.Regular),
+				LinkColor = Color.LightSkyBlue,
+				TextAlign = ContentAlignment.MiddleLeft
+			};
+			linkUserAgreement.LinkClicked += LinkUserAgreement_LinkClicked;
+			currentY += linkUserAgreement.Height + ELEMENT_SPACING;
 
 			// Кнопка регистрации
 			btnRegister = new Button
@@ -328,10 +357,15 @@ namespace тема2
 				lblRegTitle, lblFirstName, txtRegFirstName,
 				lblLastName, txtRegLastName, lblRegUsername, txtRegUsername,
 				lblRegPassword, txtRegPassword, lblEmail, txtRegEmail,
-				btnRegister, linkToLogin
+				chkAgreement, linkUserAgreement, btnRegister, linkToLogin
 			});
 
 			this.Controls.Add(pnlRegister);
+		}
+
+		private void LinkUserAgreement_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+		{
+			ShowUserAgreement();
 		}
 
 		private void ShowLoginForm()
@@ -565,6 +599,14 @@ namespace тема2
 				return false;
 			}
 
+			// Проверка чекбокса пользовательского соглашения
+			if (!chkAgreement.Checked)
+			{
+				MessageBox.Show("Для регистрации необходимо принять пользовательское соглашение",
+					"Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+				return false;
+			}
+
 			return true;
 		}
 
@@ -668,6 +710,130 @@ namespace тема2
 			txtRegUsername.Text = "";
 			txtRegPassword.Text = "";
 			txtRegEmail.Text = "";
+			chkAgreement.Checked = false; // Сбрасываем чекбокс
+		}
+
+		private void ShowUserAgreement()
+		{
+			Form agreementForm = new Form
+			{
+				Text = "Пользовательское соглашение",
+				Size = new Size(900, 670),
+				StartPosition = FormStartPosition.CenterParent,
+				MaximizeBox = false,
+				MinimizeBox = false,
+				FormBorderStyle = FormBorderStyle.FixedDialog,
+				BackColor = Color.LemonChiffon
+			};
+
+			Label lblTitle = new Label
+			{
+				Text = "Пользовательское соглашение",
+				Location = new Point(50, 10),
+				Size = new Size(800, 45),
+				Font = new Font("Times New Roman", 18, FontStyle.Bold),
+				ForeColor = Color.FromArgb(64, 64, 64),
+				TextAlign = ContentAlignment.MiddleCenter
+			};
+
+			TextBox txtAgreement = new TextBox
+			{
+				Location = new Point(50, 80),
+				Size = new Size(800, 500),
+				Multiline = true,
+				ScrollBars = ScrollBars.Vertical,
+				Font = new Font("Arial", 11),
+				BackColor = Color.White,
+				BorderStyle = BorderStyle.FixedSingle,
+				ReadOnly = true,
+				Text = GetUserAgreementText()
+			};
+
+			Button btnClose = new Button
+			{
+				Text = "Закрыть",
+				Location = new Point(375, 600),
+				Size = new Size(150, 40),
+				BackColor = Color.LightSkyBlue,
+				ForeColor = Color.White,
+				Font = new Font("Arial", 11, FontStyle.Bold),
+				FlatStyle = FlatStyle.Flat,
+				Cursor = Cursors.Hand
+			};
+			btnClose.FlatAppearance.BorderSize = 0;
+			btnClose.Click += (s, e) => agreementForm.Close();
+
+			// Добавляем обработчик события Shown чтобы убрать выделение текста
+			agreementForm.Shown += (s, e) =>
+			{
+				txtAgreement.SelectionLength = 0; // Убираем выделение
+				btnClose.Focus(); // Передаем фокус на кнопку
+			};
+
+			agreementForm.Controls.AddRange(new Control[] { lblTitle, txtAgreement, btnClose });
+			agreementForm.ShowDialog();
+		}
+
+		private string GetUserAgreementText()
+		{
+			return @"ПОЛЬЗОВАТЕЛЬСКОЕ СОГЛАШЕНИЕ
+
+1. ОБЩИЕ ПОЛОЖЕНИЯ
+
+1.1. Настоящее Пользовательское соглашение (далее – Соглашение) регулирует отношения между пользователем (далее – Пользователь) и системой психологического тестирования (далее – Система).
+
+1.2. Используя Систему, Пользователь подтверждает свое согласие с условиями настоящего Соглашения.
+
+2. РЕГИСТРАЦИЯ И АУТЕНТИФИКАЦИЯ
+
+2.1. Для доступа к функционалу Системы Пользователь проходит процедуру регистрации.
+
+2.2. Пользователь обязуется предоставлять достоверную информацию при регистрации.
+
+2.3. Пользователь несет ответственность за сохранность своих учетных данных.
+
+3. ПЕРСОНАЛЬНЫЕ ДАННЫЕ
+
+3.1. Система собирает и обрабатывает следующие персональные данные:
+- Фамилия и имя
+- Контактная информация
+- Результаты психологического тестирования
+- Резюме и профессиональные данные
+
+3.2. Обработка персональных данных осуществляется в соответствии с законодательством.
+
+4. ФУНКЦИОНАЛ СИСТЕМЫ
+
+4.1. Система предоставляет возможность:
+- Прохождения психологических тестов
+- Прикрепления резюме
+- Просмотра результатов тестирования
+- Взаимодействия с HR-специалистами
+
+4.2. Пользователь имеет право прикреплять резюме в виде файла или текста.
+
+5. ОГРАНИЧЕНИЯ ОТВЕТСТВЕННОСТИ
+
+5.1. Система не несет ответственности за:
+- Неточности в предоставленной Пользователем информации
+- Решения, принятые на основе результатов тестирования
+- Технические сбои, не зависящие от Системы
+
+6. ИНТЕЛЛЕКТУАЛЬНАЯ СОБСТВЕННОСТЬ
+
+6.1. Все материалы Системы защищены авторским правом.
+
+6.2. Пользователь не вправе копировать, распространять или использовать материалы Системы в коммерческих целях.
+
+7. ЗАКЛЮЧИТЕЛЬНЫЕ ПОЛОЖЕНИЯ
+
+7.1. Соглашение вступает в силу с момента начала использования Системы.
+
+7.2. Администрация оставляет за собой право вносить изменения в Соглашение.
+
+7.3. По всем вопросам обращаться к администрации Системы.
+
+Дата последнего обновления: " + DateTime.Now.ToString("dd.MM.yyyy");
 		}
 	}
 }

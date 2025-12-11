@@ -44,6 +44,9 @@ namespace тема2
 			button3.Hide();
 			radioButton1.Text = "Да";
 			radioButton2.Text = "Нет";
+			this.FormBorderStyle = FormBorderStyle.FixedDialog;    // Фиксированные границы
+			this.MaximizeBox = false;                              // Убрать кнопку максимизации
+			this.MinimizeBox = false;                              // Убрать кнопку минимизации
 			progressPanels = new RoundedPanel[]
 			{
 				roundedPanel10, roundedPanel1, roundedPanel2, roundedPanel3, roundedPanel4,

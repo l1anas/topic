@@ -66,6 +66,9 @@ namespace тема2
 			InitializeComponent();
 			this.ActiveControl = null; // Убираем фокус с поля поиска
 			LoadUsers();
+			this.FormBorderStyle = FormBorderStyle.FixedDialog;    // Фиксированные границы
+			this.MaximizeBox = false;                              // Убрать кнопку максимизации
+			this.MinimizeBox = false;                              // Убрать кнопку минимизации
 		}
 
 		private void InitializeComponent()

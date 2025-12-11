@@ -109,6 +109,9 @@ namespace тема2
             label3.Hide();
             groupBox1.Hide();
             button2.Hide();
+			this.FormBorderStyle = FormBorderStyle.FixedDialog;    // Фиксированные границы
+			this.MaximizeBox = false;                              // Убрать кнопку максимизации
+			this.MinimizeBox = false;                              // Убрать кнопку минимизации
 			progressPanels = new RoundedPanel[]
 			{
 				roundedPanel10, roundedPanel1, roundedPanel2, roundedPanel3, roundedPanel4,

@@ -71,6 +71,9 @@ namespace тема_1
 		private int userId;
 		public Test3(int userId)
 		{
+			this.FormBorderStyle = FormBorderStyle.FixedDialog;    // Фиксированные границы
+			this.MaximizeBox = false;                              // Убрать кнопку максимизации
+			this.MinimizeBox = false;                              // Убрать кнопку минимизации
 			this.userId = userId;
 			InitializeComponent();
 			groupBox1.Hide();

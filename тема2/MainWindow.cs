@@ -19,7 +19,10 @@ namespace тема2
 
 			this.Text += " (Пользователь)";
 			ShowUserFeatures();
-			
+			this.FormBorderStyle = FormBorderStyle.FixedDialog;    // Фиксированные границы
+			this.MaximizeBox = false;                              // Убрать кнопку максимизации
+			this.MinimizeBox = false;                              // Убрать кнопку минимизации
+
 		}
 
 		private void ShowUserFeatures()

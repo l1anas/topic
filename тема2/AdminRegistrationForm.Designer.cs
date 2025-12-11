@@ -28,6 +28,7 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
+			
 			this.txtFirstName = new System.Windows.Forms.TextBox();
 			this.txtLastName = new System.Windows.Forms.TextBox();
 			this.txtUsername = new System.Windows.Forms.TextBox();
